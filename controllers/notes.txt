@@ -1,0 +1,4 @@
+sudo apt install mongodb
+sudo systemctl start mongodb
+sudo systemctl status mongodb
+

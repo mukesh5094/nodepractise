@@ -6,8 +6,12 @@ router.get('/list', (req, res) => {
     User.list(req, res);
 });
 
-router.post('/create', (req, res) => {
+router.post('/register', (req, res) => {
     User.create(req, res)
+});
+
+router.post('/login', (req, res) => {
+    User.login(req, res)
 });
 
 

@@ -10,22 +10,28 @@ const register = async (req, res) => {
             //create hash password
             let password = await bcrypt.hash(req.body.password, 10);
 
-            const user = await User.create({
+            const user = User.create({
                  'name' : req.body.name,
                  'email' : req.body.email,
                  'phone' : req.body.phone,
                  'password' : password,
                  'role' : req.body.role_id
+             }, async (err, data) => {
+                if(err) return res.status(200).json({status : 0, err : err});
+                
+                const email = req.body.email;
+                // create Token
+                const token = await jwt.sign({user_id: data._id, email}, 'mysecretkey', {expiresIn: "2h"});
+    
+                //save token
+    
+                data.token = token;
+                data.save();
+    
+                res.status(201).json(data);
              });
-             const email = req.body.email;
-             // create Token
-             const token = await jwt.sign({user_id: user._id, email}, 'mysecretkey', {expiresIn: "2h"});
- 
-             //save token
- 
-             user.token = token;
- 
-             res.status(201).json(user);
+           
+             
         } else{
             if(oldUser.email === req.body.email) { 
                 return res.status(400).json({ status: 0, msg: "User Already exist with same Email Id" });

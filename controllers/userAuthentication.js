@@ -2,16 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('./../models/userModel')
 
-function list(req, res){
-
-    User.find({}).populate('role').exec((err, users) => {
-        if(err) throw err
-        return res.status(200).json({status : 1, 'users' : users});
-    })
-}
-
-
-const  create = async (req, res) => {
+const register = async (req, res) => {
     try {
        
         const oldUser = await User.findOne({$or:[{email : req.body.email}, {phone : req.body.phone}]});
@@ -47,27 +38,32 @@ const  create = async (req, res) => {
     } catch(err){
         console.log(err);
     }
-
 }
 
-const update = async (req, res) => {
-    User.findById(req.body.user_id, (err, user) => {
-        if(err) return res.status(200).json({status : 0, users : 'Record Not found'});
-        user.name = req.body.name;
-        user.email = req.body.email;
-        user.phone = req.body.phone;
-        user.role = req.body.role_id;
-        user.save((err1, data) => {
-            if(err1) return res.status(200).json({status : 0, error : err1})
-            return res.status(200).json({ status : 1, msg : 'User Info Updated!', user :data})
-        })
-    })
+const login = async (req, res) => {
+    const password =  req.body.password;
+   
+    const user = await User.findOne({$or:[{email : req.body.email}, {phone : req.body.phone}]}).populate('role');
+    if(!user) return res.status(400).json({ status: 0, msg: "User not exist" });
+
+    //Encrypr user password
+    const encryptedPassword =  await bcrypt.compare(password, user.password);
+    if(!encryptedPassword) return res.status(400).json({status : 0,  msg: "Password Do not match" });
+    //create Token
+    const email = user.email;
+    const token = await jwt.sign( { user_id: user._id, email },'mysecretkey',{expiresIn: "2h",});
+    
+    user.token = token;
+    user.save();
+
+    const data = {
+        name : user.name,
+        email : user.email,
+        phone : user.phone,
+        role : user.role.name
+    }
+    return res.status(200).json({ status: 1, user : data, token : token })
+       
 }
 
-
-
-module.exports = {
-    list,
-    create,
-    update
-};
+module.exports = { register, login}

@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const config = require('./../config/env');
 const User = require('./../models/userModel')
 
 const register = async (req, res) => {
@@ -21,7 +22,7 @@ const register = async (req, res) => {
                 
                 const email = req.body.email;
                 // create Token
-                const token = await jwt.sign({user_id: data._id, email}, 'mysecretkey', {expiresIn: "2h"});
+                const token = await jwt.sign({user_id: data._id, email}, config.JWT_TOKEN_KEY, {expiresIn: "2h"});
     
                 //save token
     
@@ -57,7 +58,7 @@ const login = async (req, res) => {
     if(!encryptedPassword) return res.status(400).json({status : 0,  msg: "Password Do not match" });
     //create Token
     const email = user.email;
-    const token = await jwt.sign( { user_id: user._id, email },'mysecretkey',{expiresIn: "2h",});
+    const token = await jwt.sign( { user_id: user._id, email }, config.JWT_TOKEN_KEY, {expiresIn: "2h",});
     
     user.token = token;
     user.save();

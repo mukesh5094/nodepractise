@@ -1,10 +1,12 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const config = require('./../config/env');
+
 const User = require('./../models/userModel')
 
 function list(req, res){
 
-    User.find({}).populate('role').exec((err, users) => {
+    User.find({}).populate('role').select(['name', 'email', 'phone', 'email']).exec((err, users) => {
         if(err) throw err
         return res.status(200).json({status : 1, 'users' : users});
     })
@@ -19,25 +21,25 @@ const  create = async (req, res) => {
             //create hash password
             let password = await bcrypt.hash(req.body.password, 10);
 
-            const user = await User.create({
+            const user =  User.create({
                  'name' : req.body.name,
                  'email' : req.body.email,
                  'phone' : req.body.phone,
                  'password' : password,
                  'role' : req.body.role_id
-             }, (err, data) => {
+             }, async (err, data) => {
                 if(err) return res.status(200).json({status : 0, err : err});
                 
                 const email = req.body.email;
                 // create Token
-                const token = await jwt.sign({user_id: data._id, email}, 'mysecretkey', {expiresIn: "2h"});
+                const token = await jwt.sign({user_id: data._id, email}, config.JWT_TOKEN_KEY, {expiresIn: "2h"});
     
                 //save token
     
                 data.token = token;
                 data.save();
     
-                res.status(201).json(data);
+                res.status(201).json({status : 1, msg : 'User Created Successfully'});
              });
              
         } else{
@@ -64,7 +66,7 @@ const update = async (req, res) => {
         user.role = req.body.role_id;
         user.save((err1, data) => {
             if(err1) return res.status(200).json({status : 0, error : err1})
-            return res.status(200).json({ status : 1, msg : 'User Info Updated!', user :data})
+            return res.status(200).json({ status : 1, msg : 'User Info Updated!'})
         })
     })
 }

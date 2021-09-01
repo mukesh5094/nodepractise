@@ -7,4 +7,8 @@ const sourceSchema = new Schema({
     created_at: { type: Date, default: Date.now},
 });
 
-module.exports = mongoose.model('LeadSource', sourceSchema);
+const LeadSourceData = [{ 'name' : 'Company Data' }];
+
+const  LeadSource = mongoose.model('LeadSource', sourceSchema);
+
+module.exports = {LeadSource, LeadSourceData};

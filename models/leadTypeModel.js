@@ -7,4 +7,18 @@ const leadTypeSchema = new Schema({
     created_at: { type: Date, default: Date.now},
 })
 
-module.exports = mongoose.model('LeadType', leadTypeSchema);
+const leadType =  mongoose.model('LeadType', leadTypeSchema);
+
+const LeadTypeData = [
+    { 
+        'name' : 'hot'
+    }, 
+    { 
+        'name' : 'cold'
+    },
+    {
+        'name' : 'dead'
+    }
+]
+
+module.exports = { leadType, LeadTypeData };

@@ -1,9 +1,21 @@
 const express = require('express');
 const app = express();
+
 const router = express.Router();
 const bodyParser = require('body-parser');
 
 const db = require('./db');
+
+/***************** */
+//  const initialData = require('./config/initialdata');
+//  await initialData.loadData
+
+(async () => {
+    initialData = await require("./config/initialdata");
+    await initialData();
+})();
+
+/***************** */
 
 
 const auth = require('./middleware/auth');
@@ -13,6 +25,8 @@ const rolesRouter = require('./routes/roleRoute');
 const usersRouter = require('./routes/userRoute');
 const usersAuth = require('./routes/userAuth');
 const port = 3000;
+
+
 // app.use(express.json());
 app.use(bodyParser.json());
 

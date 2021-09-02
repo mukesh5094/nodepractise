@@ -6,8 +6,9 @@ const leadSchema = new Schema ({
         email: { type: String, required: [true,"Email is Required"] },
         phone: { type: Number, required: [true,"Phone is Required"] },
         lead_source: { type: mongoose.Schema.Types.ObjectId, ref: 'LeadSource', required: [true, "Lead Source is Required"] },
-        lead_type: { type: mongoose.Schema.Types.ObjectId, ref: 'LeadType', required: [true, "Lead type is Required"] },
+        lead_type: { type: mongoose.Schema.Types.ObjectId, ref: 'LeadType', default : null},
         description: { type: String, required: [true,"Description is Required"] },
+        created_by : { type: mongoose.Schema.Types.ObjectId, ref: 'User', default : null},
         created_at: { type: Date, default: Date.now},
         updated_at: { type:Date, default: Date.now},
         delated: { type:Date, default: null}

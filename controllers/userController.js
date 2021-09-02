@@ -5,7 +5,6 @@ const config = require('./../config/env');
 const User = require('./../models/userModel')
 
 function list(req, res){
-
     User.find({}).populate('role').select(['name', 'email', 'phone', 'email']).exec((err, users) => {
         if(err) throw err
         return res.status(200).json({status : 1, 'users' : users});

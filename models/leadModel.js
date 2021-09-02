@@ -4,11 +4,16 @@ const Schema = mongoose.Schema;
 const leadSchema = new Schema ({
         name: { type: String, required: [true,"Name is Required"] },
         email: { type: String, required: [true,"Email is Required"] },
-        phone: { type: Number, required: [true,"Phone is Required"] },
+        phone: { type: Number, unique: [true, "Phone Number Already Exist"], required: [true,"Phone is Required"] },
         lead_source: { type: mongoose.Schema.Types.ObjectId, ref: 'LeadSource', required: [true, "Lead Source is Required"] },
         lead_type: { type: mongoose.Schema.Types.ObjectId, ref: 'LeadType', default : null},
         description: { type: String, required: [true,"Description is Required"] },
         created_by : { type: mongoose.Schema.Types.ObjectId, ref: 'User', default : null},
+        assigned_to : [ {
+                        user : {type :mongoose.Schema.Types.ObjectId, ref : 'User'}, 
+                        assigned_by : { type : mongoose.Schema.Types.ObjectId , ref : 'User'}, 
+                        assigned_date : { type :Date, default : Date.now}
+                } ],
         created_at: { type: Date, default: Date.now},
         updated_at: { type:Date, default: Date.now},
         delated: { type:Date, default: null}

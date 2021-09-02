@@ -6,7 +6,7 @@ const User = require('./../models/userModel')
 
 function list(req, res){
     User.find({}).populate('role').select(['name', 'email', 'phone', 'email']).exec((err, users) => {
-        if(err) throw err
+        if(err) return res.status(400).json({status : 0, error : err});
         return res.status(200).json({status : 1, 'users' : users});
     })
 }
@@ -38,7 +38,7 @@ const  create = async (req, res) => {
                 data.token = token;
                 data.save();
     
-                res.status(201).json({status : 1, msg : 'User Created Successfully'});
+                return res.status(201).json({status : 1, msg : 'User Created Successfully'});
              });
              
         } else{

@@ -3,14 +3,14 @@ const mongoose = require('mongoose');
 
 const loadData = async (req, res) => {
    /******* permission Data */
-    let permissionData = require('./../models/permissionModel').permissionData;
-    let permissionModel = require('./../models/permissionModel').permission;
-    permissionModel.findOne({}, (err, permissions) => {
-        if(err) return err;
-        if(!permissions){
-            permissionModel.create(permissionData);
-        }
-    });
+    // let permissionData = require('./../models/permissionModel').permissionData;
+    // let permissionModel = require('./../models/permissionModel').permission;
+    // permissionModel.findOne({}, (err, permissions) => {
+    //     if(err) return err;
+    //     if(!permissions){
+    //         permissionModel.create(permissionData);
+    //     }
+    // });
 
     /******* Lead Type ******* */
     let leadTypeData = require('./../models/leadTypeModel').LeadTypeData;
@@ -60,16 +60,16 @@ const loadData = async (req, res) => {
     });
 
     /******Role Permission  */
-    let PermissionRole = require('./../models/rolehasPermissionModel');
-    let adminUser = await roleModel.findOne({});
-    let permissions = await permissionModel.find({});
-    const role_permission = [];
-    if(permissions.length != 0){
-        permissions.forEach( async permission => {
-            await role_permission.push({ role_id : adminUser.id, permission_id :permission.id });
-        })
-        PermissionRole.create(role_permission);
-    }
+    // let PermissionRole = require('./../models/rolehasPermissionModel');
+    // let adminUser = await roleModel.findOne({});
+    // let permissions = await permissionModel.find({});
+    // const role_permission = [];
+    // if(permissions.length != 0){
+    //     permissions.forEach( async permission => {
+    //         await role_permission.push({ role_id : adminUser.id, permission_id :permission.id });
+    //     })
+    //     PermissionRole.create(role_permission);
+    // }
 
 }
 module.exports = loadData;

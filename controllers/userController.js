@@ -11,7 +11,6 @@ function list(req, res){
     })
 }
 
-
 const  create = async (req, res) => {
     try {
        

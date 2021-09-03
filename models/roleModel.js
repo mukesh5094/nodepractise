@@ -3,9 +3,16 @@ const Schema = mongoose.Schema;
 
 const roleSchema = new Schema({
     name : {type : String, required : [true, 'Name is Required']},
-    status: {type : Number, default : 1},
-    created_at: {type : Date, default : Date.now},
-    delated: { type:Date, default: null}
+    description :   {type : String},
+    resource :  [ 
+                    { 
+                        name : { type : String}, 
+                        permissions : []
+                    }
+                ],
+    status : { type : Number, default : 1 },
+    created_at : {type : Date, default : Date.now},
+    delated : { type:Date, default: null}
 
 });
 

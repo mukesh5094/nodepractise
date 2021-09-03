@@ -13,7 +13,6 @@ function list(req, res){
 
 const  create = async (req, res) => {
     try {
-       
         const oldUser = await User.findOne({$or:[{email : req.body.email}, {phone : req.body.phone}]});
         if(!oldUser){
             //create hash password
@@ -68,7 +67,6 @@ const update = async (req, res) => {
         })
     })
 }
-
 
 
 module.exports = {

@@ -14,8 +14,5 @@ router.post('/update', function(req, res){
     Role.update(req, res);
 })
 
-router.post('/update1', function(req, res){
-    Role.update1(req, res);
-})
 
 module.exports = router;

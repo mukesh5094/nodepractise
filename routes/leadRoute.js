@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Lead = require('./../controllers/leadController');
 
-router.get('/list', function(req, res) {
+router.post('/list', function(req, res) {
     Lead.list(req,res);
 });
 

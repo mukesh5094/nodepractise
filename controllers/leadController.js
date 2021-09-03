@@ -1,10 +1,47 @@
 const Lead = require('./../models/leadModel');
 
 exports.list = (req, res) => {
+    let skip = 0
+    let limit = 10;
+    let sort = { 'created_at' : -1 };
+    
+    // const keyword = req.body.keyword_search;
+    // const leadSource = req.body.lead_source;
+    // const leadType = req.body.lead_type;
+
+    let filter ={};
+
+    if (req.body.keyword_search) {
+        filter  =   { $or : [ { name : {$regex: req.body.keyword_search, $options: 'i'}}, 
+                              {email : {$regex: req.body.keyword_search, $options: 'i'}}
+                            ]
+                    }
+    }
+    
+    if (req.body.lead_source) filter.lead_source = req.body.lead_source ;
+    if (req.body.lead_type) filter.lead_type = req.body.lead_type;
+    // if (req.body.lead_assigned) filter.assigned_to.user = req.body.lead_assigned;
+
+    
+    
+   
+    /***** Apply Filter****** */
+    // if(req.body.keyword_search){
+    //     let keyword = req.body.keyword_search;
+    //     filter.push({$or : [ { name : {$regex: keyword, $options: 'i'}}, {email : {$regex: keyword, $options: 'i'}} ]});
+    // }
+   
+    // { lead_source : leadSource }
+    /************** */
     Lead.
-        find({}).
+        find(filter).
         populate('lead_source', 'name').
-        populate('created_by', ['name', 'email', 'phone']).
+        populate('created_by', ['name']).
+        populate('assigned_to.user', ['name']).
+        populate('assigned_to.assigned_by', ['name']).
+        sort(sort).
+        limit(limit).
+        skip(skip).
         exec( (err, leads) => {
             if(err) return res.status(400).json({status : 0, error : err});
             return res.json({ status : 1, leads : leads});
@@ -46,26 +83,28 @@ exports.edit = async (req, res) => {
 
 exports.leadAssign = async (req, res) => {
     const leadArray = req.body.leads;
-    
+    const data  = await leadArray.forEach( async (element) => {
+        Lead.findById(element, async (err, lead) => {
+            if(err) {};
 
-    leadArray.forEach( async (element) => {
-        const data = Lead.findById(element, async (err, lead) => {
-            if(err) return res.status(400).json({status : 0, error : err1});
-            let assignArray =  {
-                user : req.body.user_id,
-                assigned_by : req.user.user_id
-            };
-            
+            /*******Check lead assigend to same user***** */
 
-            lead.assigned_to.push(assignArray);
+            // let latest = await lead.assigned_to[Object.keys(lead.assigned_to)[Object.keys(lead.assigned_to).length - 1]] ;
 
-            lead.save((err1, lead) => {
-                if(err1) return res.status(400).json({status : 0, error : err1});
-                res.status(200).json({status:1, message : "Message Assigned Successfully"})
-            });
+            // if(latest.user !== req.body.user_id){
+                let assignArray =  await {
+                    user : req.body.user_id,
+                    assigned_by : req.user.user_id
+                };
+                
+                 lead.assigned_to.push(assignArray);
+                // lead.assigned_to =assignArray;
+                lead.save((err1, lead) => {
+                   
+                    if(err1) {};
+                });
+            // }
         });
-        
     });
-   
-
+    return res.status(200).json({status : 1, message : "lead assigned !" , data : data});
 }

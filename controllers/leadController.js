@@ -5,12 +5,8 @@ exports.list = (req, res) => {
     let limit = 10;
     let sort = { 'created_at' : -1 };
     
-    // const keyword = req.body.keyword_search;
-    // const leadSource = req.body.lead_source;
-    // const leadType = req.body.lead_type;
-
+    /********Filter *****/
     let filter ={};
-
     if (req.body.keyword_search) {
         filter  =   { $or : [ { name : {$regex: req.body.keyword_search, $options: 'i'}}, 
                               {email : {$regex: req.body.keyword_search, $options: 'i'}}
@@ -20,19 +16,9 @@ exports.list = (req, res) => {
     
     if (req.body.lead_source) filter.lead_source = req.body.lead_source ;
     if (req.body.lead_type) filter.lead_type = req.body.lead_type;
-    // if (req.body.lead_assigned) filter.assigned_to.user = req.body.lead_assigned;
 
-    
-    
-   
-    /***** Apply Filter****** */
-    // if(req.body.keyword_search){
-    //     let keyword = req.body.keyword_search;
-    //     filter.push({$or : [ { name : {$regex: keyword, $options: 'i'}}, {email : {$regex: keyword, $options: 'i'}} ]});
-    // }
-   
-    // { lead_source : leadSource }
-    /************** */
+    /*******End Of Filter ******** */
+
     Lead.
         find(filter).
         populate('lead_source', 'name').

@@ -10,7 +10,7 @@ router.post('/create', (req, res) => {
     User.create(req, res)
 });
 
-router.post('/update', (req, res) => {
+router.post('/edit', (req, res) => {
     User.update(req, res)
 });
 

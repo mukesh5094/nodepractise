@@ -9,11 +9,12 @@ const leadSchema = new Schema ({
         lead_type: { type: mongoose.Schema.Types.ObjectId, ref: 'LeadType', default : null},
         description: { type: String, required: [true,"Description is Required"] },
         created_by : { type: mongoose.Schema.Types.ObjectId, ref: 'User', default : null},
-        assigned_to : [ {
-                        user : {type :mongoose.Schema.Types.ObjectId, ref : 'User'}, 
-                        assigned_by : { type : mongoose.Schema.Types.ObjectId , ref : 'User'}, 
-                        assigned_date : { type :Date, default : Date.now}
-                } ],
+        assigned_to : [{
+                user : {type :mongoose.Schema.Types.ObjectId, ref : 'User'}, 
+                assigned_by : { type : mongoose.Schema.Types.ObjectId , ref : 'User'},
+                status : { type : Number, default : 1},
+                assigned_date : { type :Date, default : Date.now}
+        }],
         created_at: { type: Date, default: Date.now},
         updated_at: { type:Date, default: Date.now},
         delated: { type:Date, default: null}

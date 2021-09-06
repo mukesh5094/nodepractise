@@ -4,7 +4,7 @@ exports.list = (req, res) => {
     let skip = 0
     let limit = 10;
     let sort = { 'created_at' : -1 };
-    
+
     /********Filter *****/
     let filter ={};
     if (req.body.keyword_search) {
@@ -16,7 +16,9 @@ exports.list = (req, res) => {
     
     if (req.body.lead_source) filter.lead_source = req.body.lead_source ;
     if (req.body.lead_type) filter.lead_type = req.body.lead_type;
-
+   
+    if(req.body.assigned_to) filter.assigned_to =  { $elemMatch: { user : req.body.assigned_to, status : 1} };
+   
     /*******End Of Filter ******** */
 
     Lead.
@@ -46,11 +48,8 @@ exports.create = (req, res) => {
 
 exports.edit = async (req, res) => {
     const query = { "_id": req.body.id };
-
-    const update = await {
-        "name": req.body.name,
-        "description": req.body.description,
-    };
+  
+    
     Lead.findById(req.body.id, (err, lead) => {
         if(err) return res.status(400).json({status : 0, message : "Record Not Found"});
         lead.name = (req.body.name ? req.body.name : lead.name);
@@ -72,24 +71,19 @@ exports.leadAssign = async (req, res) => {
     const data  = await leadArray.forEach( async (element) => {
         Lead.findById(element, async (err, lead) => {
             if(err) {};
-
-            /*******Check lead assigend to same user***** */
-
-            // let latest = await lead.assigned_to[Object.keys(lead.assigned_to)[Object.keys(lead.assigned_to).length - 1]] ;
-
-            // if(latest.user !== req.body.user_id){
+                if(lead.assigned_to.length > 0){
+                    lead.assigned_to[lead.assigned_to.length - 1].status = 0;
+                }
                 let assignArray =  await {
                     user : req.body.user_id,
                     assigned_by : req.user.user_id
                 };
-                
-                 lead.assigned_to.push(assignArray);
-                // lead.assigned_to =assignArray;
+                lead.assigned_to.push(assignArray);
+
                 lead.save((err1, lead) => {
-                   
                     if(err1) {};
                 });
-            // }
+           
         });
     });
     return res.status(200).json({status : 1, message : "lead assigned !" , data : data});

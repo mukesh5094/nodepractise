@@ -10,7 +10,7 @@ router.post('/create', function(req, res){
     Role.create(req, res);
 })
 
-router.post('/update', function(req, res){
+router.post('/edit', function(req, res){
     Role.update(req, res);
 })
 

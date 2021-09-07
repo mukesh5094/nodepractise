@@ -9,8 +9,8 @@ const checkPermission = async (req, res, next) => {
         var index = await role.resource.findIndex((response) => {
             return response.name == urlArray[1];   
         });
-
-        if(index){
+        
+        if(index >= 0){
             const permission = await role.resource[index].permissions.includes(urlArray[2]);
             if(!permission){
                 return res.status(400).json({status : 0, message : "Sorry! You have not Permission!"});

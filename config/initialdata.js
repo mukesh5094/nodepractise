@@ -23,6 +23,16 @@ const loadData = async (req, res) => {
         }
     });
 
+    /****Update type */
+    let updateTypeData = require('../models/updateTypeModel').UpdateTypeData;
+    let updateType = require('../models/updateTypeModel').UpdateType;
+    updateType.findOne({}, (err, leadsource) => {
+        if(err) return err;
+        if(!leadsource){
+            updateType.create(updateTypeData);
+        }
+    });
+
     /*****Role - user  - */
     let userModel = require('./../models/userModel');
     let roleModel = require('./../models/roleModel');

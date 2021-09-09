@@ -9,8 +9,9 @@ const LeadHistory = new Schema({
     user_id : { type : mongoose.Schema.Types.ObjectId, ref : userModel, required : [true, "User id is required" ] },
     reminder : { type : Date, default : null},
     remark : { type : String, default : null},
-    update_type : [ {  update_id : { type : mongoose.Schema.Types.ObjectId, ref : UpdateType}, updateinfo : { type: mongoose.Schema.Types.ObjectId, ref : UpdateType.subtype} } ],
-    other_info : { type : String, default : null}
+    update_type : {  maincat : { type : mongoose.Schema.Types.ObjectId, ref : UpdateType}, subcat : { type: String } },
+    other_info : { type : String, default : null},
+    created_at : { type : Date, default : Date.now}
 });
 
 module.exports = mongoose.model('LeadHistory', LeadHistory);

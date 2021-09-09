@@ -1,4 +1,5 @@
 const Lead = require('./../models/leadModel');
+const LeadHistory = require('./../models/leadHistoryModel');
 
 exports.list = (req, res) => {
     let skip = 0
@@ -87,4 +88,44 @@ exports.leadAssign = async (req, res) => {
         });
     });
     return res.status(200).json({status : 1, message : "lead assigned !" , data : data});
+}
+
+exports.leadHistory = async (req, res) => {   
+    const info = await Lead.findById(req.body.lead_id).populate('assigned_to.user');
+    if(info){
+        if(info.assigned_to.length > 0 && info.assigned_to[info.assigned_to.length - 1]['user'].id === req.body.user_id && info.assigned_to[info.assigned_to.length - 1]['status'] == 1){
+            LeadHistory.create({
+                'lead_id' : info.id,
+                'user_id' : req.body.user_id,
+                'reminder' : ((req.body.reminder) ? req.body.reminder : null),
+                'remark' : req.body.remark,
+                'update_type' : {
+                    'maincat' : req.body.update_type,
+                    'subcat' : req.body.update_sub_type
+                },
+                'other_info' : ((req.body.other_info) ? req.body.other_info : null)
+            }, (err, history) => {
+                if(err) return res.status(400).json({ status : 0, message : 'Something is Wrong!', error : err});
+                return res.status(200).json({ status: 1, message : 'Lead reminder updated successfully'});
+            })
+        } else {
+            return res.status(400).json({ status : 0, message : "Sorry! You have not permission to update this lead."});
+        }
+    } else {
+        return res.status(400).json({ status : 0, message : "Record Not Found"});
+    }
+}
+
+exports.getLeadHistory = async (req, res) => {
+    LeadHistory.
+        find({}).
+        populate('lead_id', ['_id', 'name']).
+        populate('user_id', ['_id', 'name']).
+        populate('update_type.maincat', ['_id', 'name']).
+        exec((err, histories) => {
+            if(err) return res.status(400).json({ status : 0, error : err})
+            if(histories){
+                return res.status(200).json({ status : 1, list : histories});
+            }
+        });
 }

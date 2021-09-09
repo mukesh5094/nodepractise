@@ -55,16 +55,21 @@ const  create = async (req, res) => {
 }
 
 const update = async (req, res) => {
+   
     User.findById(req.body.user_id, (err, user) => {
-        if(err) return res.status(200).json({status : 0, users : 'Record Not found'});
-        user.name = req.body.name;
-        user.email = req.body.email;
-        user.phone = req.body.phone;
-        user.role = req.body.role_id;
-        user.save((err1, data) => {
-            if(err1) return res.status(200).json({status : 0, error : err1})
-            return res.status(200).json({ status : 1, msg : 'User Info Updated!'})
-        })
+        if(err) return res.status(200).json({status : 0, error : err});
+        if(user){
+            user.name = req.body.name;
+            user.email = req.body.email;
+            user.phone = req.body.phone;
+            user.role = req.body.role_id;
+            user.save((err1, data) => {
+                if(err1) return res.status(200).json({status : 0, error : err1})
+                return res.status(200).json({ status : 1, msg : 'User Info Updated!'})
+            })
+        } else{
+            return res.status(400).json({status : 0, users : 'Record Not found'});
+        }
     })
 }
 

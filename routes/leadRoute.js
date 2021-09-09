@@ -19,4 +19,12 @@ router.post('/leads-assign', permission, (req, res) => {
     Lead.leadAssign(req,res);
 })
 
+router.post('/lead-history', (req, res) => {
+    Lead.leadHistory(req,res);
+})
+
+router.get('/leads-history', (req, res) => {
+    Lead.getLeadHistory(req,res);
+})
+
 module.exports = router;

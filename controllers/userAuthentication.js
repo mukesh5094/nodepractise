@@ -53,7 +53,7 @@ const login = async (req, res) => {
    
     const user = await User.findOne({$or:[{email : req.body.email}, {phone : req.body.phone}]}).populate('role');
     if(!user) return res.status(400).json({ status: 0, msg: "User not exist" });
-
+    if(!user.role) return res.status(400).json({ status: 0, msg: "Role Not assigned" });
     //Encrypr user password
     const encryptedPassword =  await bcrypt.compare(password, user.password);
     if(!encryptedPassword) return res.status(400).json({status : 0,  msg: "Password Do not match" });

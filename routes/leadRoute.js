@@ -27,4 +27,8 @@ router.get('/leads-history', (req, res) => {
     Lead.getLeadHistory(req,res);
 })
 
+router.get('/reminders', (req, res) => {
+    Lead.getReminders(req,res);
+})
+
 module.exports = router;

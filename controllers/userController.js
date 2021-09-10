@@ -5,7 +5,7 @@ const config = require('./../config/env');
 const User = require('./../models/userModel')
 
 function list(req, res){
-    User.find({}).populate('role').select(['name', 'email', 'phone', 'email']).exec((err, users) => {
+    User.find({}).populate('role', ['name', 'email', 'phone', 'email']).populate(['parent', 'name']).exec((err, users) => {
         if(err) return res.status(400).json({status : 0, error : err});
         return res.status(200).json({status : 1, 'users' : users});
     })
@@ -23,7 +23,8 @@ const  create = async (req, res) => {
                  'email' : req.body.email,
                  'phone' : req.body.phone,
                  'password' : password,
-                 'role' : req.body.role_id
+                 'role' : req.body.role_id,
+                 'parent' : req.body.parent
              }, async (err, data) => {
                 if(err) return res.status(200).json({status : 0, err : err});
                 
@@ -63,6 +64,7 @@ const update = async (req, res) => {
             user.email = req.body.email;
             user.phone = req.body.phone;
             user.role = req.body.role_id;
+            user.parent = req.body.parent;
             user.save((err1, data) => {
                 if(err1) return res.status(200).json({status : 0, error : err1})
                 return res.status(200).json({ status : 1, msg : 'User Info Updated!'})

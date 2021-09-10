@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const Schema = mongoose.Schema;
 
 const updateTypeSchema = new Schema({
@@ -23,4 +22,5 @@ const UpdateTypeData = [
 
 const  UpdateType = mongoose.model('UpdateType', updateTypeSchema);
 
-module.exports = {UpdateTypeData, UpdateType};
+
+module.exports = {UpdateType, UpdateTypeData};

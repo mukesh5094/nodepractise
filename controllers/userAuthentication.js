@@ -16,7 +16,8 @@ const register = async (req, res) => {
                  'email' : req.body.email,
                  'phone' : req.body.phone,
                  'password' : password,
-                 'role' : req.body.role_id
+                 'role' : req.body.role_id,
+                 'parent' : 0
              }, async (err, data) => {
                 if(err) return res.status(200).json({status : 0, err : err});
                 

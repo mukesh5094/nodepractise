@@ -1,3 +1,4 @@
+const moment = require('moment');
 const Lead = require('./../models/leadModel');
 const LeadHistory = require('./../models/leadHistoryModel');
 
@@ -93,10 +94,10 @@ exports.leadAssign = async (req, res) => {
 exports.leadHistory = async (req, res) => {   
     const info = await Lead.findById(req.body.lead_id).populate('assigned_to.user');
     if(info){
-        if(info.assigned_to.length > 0 && info.assigned_to[info.assigned_to.length - 1]['user'].id === req.body.user_id && info.assigned_to[info.assigned_to.length - 1]['status'] == 1){
+        if(info.assigned_to.length > 0 && info.assigned_to[info.assigned_to.length - 1]['user'].id === req.user.user_id && info.assigned_to[info.assigned_to.length - 1]['status'] == 1){
             LeadHistory.create({
                 'lead_id' : info.id,
-                'user_id' : req.body.user_id,
+                'user_id' : req.user.user_id,
                 'reminder' : ((req.body.reminder) ? req.body.reminder : null),
                 'remark' : req.body.remark,
                 'update_type' : {
@@ -117,15 +118,81 @@ exports.leadHistory = async (req, res) => {
 }
 
 exports.getLeadHistory = async (req, res) => {
+    let skip = 0
+    let limit = 10;
+    let sort = { 'created_at' : -1 };
+    const filter = {};
+    /**** User Filter  *****/
+    if(req.body.user){
+        filter.user_id = req.body.user;
+    }
+    /*******if date not set record only for one day *********** */
+    if(req.body.from && req.body.to){
+        const start = new Date(req.body.from);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(req.body.to);
+        end.setHours(23, 59, 59, 999);
+        filter.created_at ={
+            $gte :start,
+            $lt: end
+        }
+    } else {
+        filter.created_at ={
+            $gte : moment().startOf('day'),
+            $lt: moment().endOf('day')
+        }
+    }
+    /***********Update Type************* */
+    if(req.body.update_type) filter.update_type =  { $elemMatch: { maincat : req.body.update_type} };
+
+
+   
+   
+   
     LeadHistory.
-        find({}).
-        populate('lead_id', ['_id', 'name']).
-        populate('user_id', ['_id', 'name']).
-        populate('update_type.maincat', ['_id', 'name']).
+        find(filter).
+        populate('lead_id', ['id', 'name']).
+        populate('user_id', ['id', 'name']).
+        populate('update_type.maincat', ['id', 'name']).
+        sort(sort).
+        limit(limit).
+        skip(skip).
         exec((err, histories) => {
+           
             if(err) return res.status(400).json({ status : 0, error : err})
             if(histories){
                 return res.status(200).json({ status : 1, list : histories});
             }
         });
+}
+
+exports.getReminders = async (req, res) => {
+
+    /*******if date not set record only for one day *********** */
+    if(req.body.from && req.body.to){
+        const start = new Date(req.body.from);
+        start.setHours(0, 0, 0, 0);
+        const end = new Date(req.body.to);
+        end.setHours(23, 59, 59, 999);
+        filter.created_at ={
+            $gte :start,
+            $lt: end
+        }
+    } else {
+        filter.created_at ={
+            $gte : moment().startOf('day'),
+            $lt: moment().endOf('day')
+        }
+    }
+    
+    LeadHistory.
+        find({ sort: { '_id': -1 }}).
+        distinct('lead_id').
+        exec((err, reminders) => {
+            if(err) return res.status(400).json({ status : 0, error : err})
+            if(reminders){
+                return res.status(200).json({ status : 1, list : reminders});
+            }
+        })
+
 }

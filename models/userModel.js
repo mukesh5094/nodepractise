@@ -8,6 +8,7 @@ const userSchema = new Schema({
     phone : {type : Number, unique: true ,required:[true, "Phone is Required"]},
     role : {type : Schema.Types.ObjectId, ref: Role, required: [true, "User Role is Required"]},
     password: {type : String, required:[true, "Password is Required"]},
+    parent : this,
     token: { type: String },
     created_at: { type: Date, default: Date.now},
     updated_at: { type:Date, default: Date.now},

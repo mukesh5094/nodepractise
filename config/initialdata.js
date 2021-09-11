@@ -5,7 +5,7 @@ const loadData = async (req, res) => {
    
     /******* Lead Type ******* */
     let leadTypeData = require('./../models/leadTypeModel').LeadTypeData;
-    let leadTypeModel = require('./../models/leadTypeModel').leadType;
+    let leadTypeModel = require('./../models/leadTypeModel').LeadType;
     leadTypeModel.findOne({}, (err, leadtype) => {
         if(err) return err;
         if(!leadtype){

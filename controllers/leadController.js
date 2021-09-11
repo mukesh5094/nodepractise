@@ -15,17 +15,16 @@ exports.list = (req, res) => {
                             ]
                     }
     }
-    
-    if (req.body.lead_source) filter.lead_source = req.body.lead_source ;
-    if (req.body.lead_type) filter.lead_type = req.body.lead_type;
-   
     if(req.body.assigned_to) filter.assigned_to =  { $elemMatch: { user : req.body.assigned_to, status : 1} };
-   
+    if (req.body.lead_source) filter.leadsource = { $elemMatch : { source : req.body.lead_source, status : 1 }};
+    if (req.body.lead_type) filter.leadtype = { $elemMatch : { source : req.body.lead_type, status : 1 }};
+
     /*******End Of Filter ******** */
 
     Lead.
         find(filter).
-        populate('lead_source', 'name').
+        populate('leadsource.source', ['name']).
+        populate('leadtype.source', 'name').
         populate('created_by', ['name']).
         populate('assigned_to.user', ['name']).
         populate('assigned_to.assigned_by', ['name']).
@@ -38,9 +37,22 @@ exports.list = (req, res) => {
     });
 };
 
-exports.create = (req, res) => {
+exports.create = async (req, res) => {
     var lead = new Lead(req.body);
     lead.created_by =  req.user.user_id ;
+    if(req.body.lead_source){
+        await lead.leadsource.push( {
+            source : req.body.lead_source,
+            user : req.user.user_id
+        })
+    }
+    
+    if(req.body.lead_type){
+        await lead.leadtype.push( {
+            source : req.body.lead_type,
+            user : req.user.user_id
+        })
+    }
     lead.save((err, lead) => {
         if(err) return res.status(400).json({status : 0, err : err});
         return res.status(200).json({status : 1, lead : lead});
@@ -52,15 +64,42 @@ exports.edit = async (req, res) => {
     const query = { "_id": req.body.id };
   
     
-    Lead.findById(req.body.id, (err, lead) => {
+    Lead.findById(req.body.id, async (err, lead) => {
         if(err) return res.status(400).json({status : 0, message : "Record Not Found"});
         lead.name = (req.body.name ? req.body.name : lead.name);
         lead.description = (req.body.description ? req.body.description : lead.description);
         lead.email = (req.body.email ? req.body.email : lead.email);
         lead.phone = (req.body.phone ? req.body.phone : lead.phone);
-        lead.lead_source = (req.body.lead_source ? req.body.lead_source : lead.lead_source);
-        lead.lead_type = (req.body.lead_type ? req.body.lead_type : lead.lead_type);
-
+       
+        if(req.body.lead_source){
+            if(lead.leadsource.length > 0 && lead.leadsource[lead.leadsource.length - 1].source != req.body.lead_source){
+                lead.leadsource[lead.leadsource.length - 1].status = 0;
+                await lead.leadsource.push( {
+                    source : req.body.lead_source,
+                    user : req.user.user_id
+                });
+            } else if(lead.leadsource.length === 0){
+                await lead.leadsource.push( {
+                    source : req.body.lead_source,
+                    user : req.user.user_id
+                });
+            }
+        }
+        
+        if(req.body.lead_type){
+            if((lead.leadtype.length > 0 ) && (lead.leadtype[lead.leadtype.length - 1].source != req.body.lead_type)){
+                lead.leadtype[lead.leadtype.length - 1].status = 0;
+                await lead.leadtype.push( {
+                    source : req.body.lead_type,
+                    user : req.user.user_id
+                });
+            } else if(lead.leadtype.length === 0 ) {
+                await lead.leadsource.push( {
+                    source : req.body.lead_source,
+                    user : req.user.user_id
+                });
+            }
+        }
         lead.save((err1, lead) => {
             if(err1) return res.status(400).json({status : 0, error : err1});
             return res.status(200).json({status : 1, lead : lead, message : "Updated Successfully!"});

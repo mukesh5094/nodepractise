@@ -1,12 +1,30 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+/**************
+ * validation not handle unique
+ * 
+ */
+
 const leadSchema = new Schema ({
         name: { type: String, required: [true,"Name is Required"] },
         email: { type: String, required: [true,"Email is Required"] },
         phone: { type: Number, unique: [true, "Phone Number Already Exist"], required: [true,"Phone is Required"] },
-        lead_source: { type: mongoose.Schema.Types.ObjectId, ref: 'LeadSource', required: [true, "Lead Source is Required"] },
-        lead_type: { type: mongoose.Schema.Types.ObjectId, ref: 'LeadType', default : null},
+        // lead_source: { type: mongoose.Schema.Types.ObjectId, ref: 'LeadSource', required: [true, "Lead Source is Required"] },
+        leadsource : [ {
+                source : { type:mongoose.Schema.Types.ObjectId, ref : 'LeadSource'},
+                user : { type : mongoose.Schema.Types.ObjectId , ref : 'User'},
+                status : { type : Number, default : 1},
+                assigned_date : { type :Date, default : Date.now}
+
+        }],
+        leadtype : [ {
+                source : { type:mongoose.Schema.Types.ObjectId, ref : 'LeadType'},
+                user : { type : mongoose.Schema.Types.ObjectId , ref : 'User'},
+                status : { type : Number, default : 1},
+                assigned_date : { type :Date, default : Date.now}
+        }],
+        
         description: { type: String, required: [true,"Description is Required"] },
         created_by : { type: mongoose.Schema.Types.ObjectId, ref: 'User', default : null},
         assigned_to : [{

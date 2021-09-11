@@ -7,7 +7,7 @@ const leadTypeSchema = new Schema({
     created_at: { type: Date, default: Date.now},
 })
 
-const leadType =  mongoose.model('LeadType', leadTypeSchema);
+const LeadType =  mongoose.model('LeadType', leadTypeSchema);
 
 const LeadTypeData = [
     { 
@@ -21,4 +21,4 @@ const LeadTypeData = [
     }
 ]
 
-module.exports = { leadType, LeadTypeData };
+module.exports = { LeadType, LeadTypeData };

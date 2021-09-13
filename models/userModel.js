@@ -21,4 +21,8 @@ const userSchema = new Schema({
 
 });
 
+userSchema.methods.children = function (cb) {
+    return this.model('User').find({parent : this.id}, cb).populate('role', ['name', 'email', 'phone', 'email']).select(['name', 'email', 'role']);
+}
+
 module.exports = mongoose.model('User', userSchema);

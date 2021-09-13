@@ -15,7 +15,7 @@ router.post('/edit', permission, (req, res) => {
     Lead.edit(req,res);
 })
 
-router.post('/leads-assign', permission, (req, res) => {
+router.post('/leads-assign', (req, res) => {
     Lead.leadAssign(req,res);
 })
 

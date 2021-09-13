@@ -5,11 +5,11 @@ const config = require('./../config/env');
 const User = require('./../models/userModel')
 
 function list(req, res){
-    User.find({}).populate('role', ['name', 'email', 'phone', 'email']).populate(['parent', 'name']).exec((err, users) => {
+    User.find({}).populate('role', ['name', 'email', 'phone', 'email']).populate('parent', ['name']).exec((err, users) => {
         if(err) return res.status(400).json({status : 0, error : err});
         return res.status(200).json({status : 1, 'users' : users});
     })
-}
+};
 
 const  create = async (req, res) => {
     try {
@@ -53,7 +53,7 @@ const  create = async (req, res) => {
         console.log(err);
     }
 
-}
+};
 
 const update = async (req, res) => {
    
@@ -73,11 +73,24 @@ const update = async (req, res) => {
             return res.status(400).json({status : 0, users : 'Record Not found'});
         }
     })
-}
+};
 
 
+
+const view = async (req, res) => {
+    User.findById(req.body.user_id, (err, user) => {
+        if(err) return res.status(200).json({status : 0, error : err});
+        if(user){
+           
+            const children = user.children((err, children) => {
+                console.log(children);
+            });
+          }
+    })
+};
 module.exports = {
     list,
     create,
-    update
+    update,
+    view,
 };

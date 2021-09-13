@@ -14,6 +14,10 @@ router.post('/edit', (req, res) => {
     User.update(req, res)
 });
 
+router.post('/view', (req, res) => {
+    User.view(req, res)
+});
+
 router.post('/login', (req, res) => {
     User.login(req, res)
 });

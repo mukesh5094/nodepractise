@@ -6,20 +6,22 @@ const checkPermission = async (req, res, next) => {
     
     Role.findById(req.user.role, async (err, role) => {
         if(err) console.log('permission error');
-        var index = await role.resource.findIndex((response) => {
-            return response.name == urlArray[1];   
-        });
-        
-        if(index >= 0){
-            const permission = await role.resource[index].permissions.includes(urlArray[2]);
-            if(!permission){
-                return res.status(400).json({status : 0, message : "Sorry! You have not Permission!"});
-            }else{
-                return next();
-            }
-        }else {
-            return res.status(400).json({status : 0, message : "Module Not Found to Perform Operation"});
-        }  
+        if(role){
+            var index = await role.resource.findIndex((response) => {
+                return response.name == urlArray[1];   
+            });
+            
+            if(index >= 0){
+                const permission = await role.resource[index].permissions.includes(urlArray[2]);
+                if(!permission){
+                    return res.status(400).json({status : 0, message : "Sorry! You have not Permission!"});
+                }else{
+                    return next();
+                }
+            }else {
+                return res.status(400).json({status : 0, message : "Module Not Found to Perform Operation"});
+            }  
+        }
     });
    
 }

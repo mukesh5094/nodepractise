@@ -48,11 +48,11 @@ const loadData = async (req, res) => {
                     description : "Super User",
                     resource : [
                         {
-                            name: 'Role',
+                            name: 'roles',
                             permissions : ['create', 'edit', 'delete', 'list']
                         },
                         {
-                            name: 'User',
+                            name: 'users',
                             permissions : ['create', 'edit', 'delete', 'list']
                         },{
                             name: 'Lead Source',

@@ -18,7 +18,7 @@ const  create = async (req, res) => {
             //create hash password
             let password = await bcrypt.hash(req.body.password, 10);
 
-            const user =  User.create({
+            const newUser =  User.create({
                  'name' : req.body.name,
                  'email' : req.body.email,
                  'phone' : req.body.phone,
@@ -27,17 +27,20 @@ const  create = async (req, res) => {
                  'parent' : req.body.parent
              }, async (err, data) => {
                 if(err) return res.status(200).json({status : 0, err : err});
-                
-                const email = req.body.email;
-                // create Token
-                const token = await jwt.sign({user_id: data._id, email}, config.JWT_TOKEN_KEY, {expiresIn: "2h"});
+                try{
+                    buildAncestors(newUser.id, req.body.parent)
+                    return res.status(201).send({ response: `Category ${newCategory._id}` });
+                }catch (e) {
+                    return res.status(500).send(err);
+                }
+
+                /*****Generate Token */
+                // const email = req.body.email;
+                // const token = await jwt.sign({user_id: data._id, email}, config.JWT_TOKEN_KEY, {expiresIn: "2h"});
+                // data.token = token;
+                // data.save();
     
-                //save token
-    
-                data.token = token;
-                data.save();
-    
-                return res.status(201).json({status : 1, msg : 'User Created Successfully'});
+                // return res.status(201).json({status : 1, msg : 'User Created Successfully'});
              });
              
         } else{
@@ -88,6 +91,21 @@ const view = async (req, res) => {
           }
     })
 };
+
+const buildAncestors = async (id, parent_id) => {
+    let ancest = [];
+    try {
+        let parent_category = await Category.findOne({ "_id":    parent },{ "name": 1 }).exec();
+        if( parent_category ) {
+           const { _id, name } = parent_category;
+           const ancest = [...parent_category.ancestors];
+           ancest.unshift({ _id, name })
+           const category = await Category.findByIdAndUpdate(id, { $set: { "ancestors": ancest } });
+         }
+      } catch (err) {
+          console.log(err.message)
+       }
+ }
 module.exports = {
     list,
     create,

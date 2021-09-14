@@ -46,6 +46,7 @@ const loadData = async (req, res) => {
                 {
                     name : 'Admin',
                     description : "Super User",
+                    order : 1,
                     resource : [
                         {
                             name: 'roles',

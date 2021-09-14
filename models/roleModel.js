@@ -10,7 +10,8 @@ const roleSchema = new Schema({
                         permissions : []
                     }
                 ],
-    status : { type : Number, default : 1 },
+    status : { type : Number },
+    order : { type : Number},
     created_at : {type : Date, default : Date.now},
     delated : { type:Date, default: null}
 

@@ -32,20 +32,8 @@ const  create = async (req, res) => {
                  'parent' : req.body.parent
              }, async (err, data) => {
                 if(err) return res.status(200).json({status : 0, err : err});
-                try{
                     buildAncestors(data.id, req.body.parent)
                     return res.status(201).json({ status : 1, message : "user Created Successfully" });
-                }catch (e) {
-                    return res.status(500).send(err);
-                }
-
-                /*****Generate Token */
-                // const email = req.body.email;
-                // const token = await jwt.sign({user_id: data._id, email}, config.JWT_TOKEN_KEY, {expiresIn: "2h"});
-                // data.token = token;
-                // data.save();
-    
-                // return res.status(201).json({status : 1, msg : 'User Created Successfully'});
              });
              
         } else{
@@ -107,8 +95,6 @@ const remove = async (req, res ) => {
                     buildHierarchyAncestors(doc.id, info.parent)})
             }
         }
-        
-       
     } catch (e){
         return res.status(500).send(e)
     }

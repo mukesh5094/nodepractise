@@ -76,6 +76,7 @@ const loadData = async (req, res) => {
                         email : 'admin@gmail.com',
                         phone : 1234567890, 
                         password : password, 
+                        parent : null,
                         role : role_id
                     });
                     admin.save( (err2, user) => {

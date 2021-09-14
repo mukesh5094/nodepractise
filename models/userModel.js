@@ -19,6 +19,7 @@ const userSchema = new Schema({
         name : String
     }],
     token: { type: String },
+    status : { type : Number, default : 1},
     created_at: { type: Date, default: Date.now},
     updated_at: { type:Date, default: Date.now},
     delated: { type:Date, default: null}

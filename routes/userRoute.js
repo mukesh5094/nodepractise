@@ -14,8 +14,13 @@ router.post('/edit', (req, res) => {
     User.update(req, res)
 });
 
-router.post('/view', (req, res) => {
-    User.view(req, res)
+router.post('/remove', (req, res) => {
+    User.remove(req, res)
+});
+
+
+router.post('/descendants', (req, res) => {
+    User.getDescendants(req, res)
 });
 
 router.post('/login', (req, res) => {

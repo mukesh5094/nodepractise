@@ -46,7 +46,6 @@ const loadData = async (req, res) => {
                 {
                     name : 'Admin',
                     description : "Super User",
-                    order : 1,
                     resource : [
                         {
                             name: 'roles',
@@ -56,13 +55,16 @@ const loadData = async (req, res) => {
                             name: 'users',
                             permissions : ['create', 'edit', 'delete', 'list']
                         },{
-                            name: 'Lead Source',
+                            name: 'leadsources',
                             permissions : ['create', 'edit', 'delete', 'list']
                         },{
-                            name: 'Lead Type',
+                            name: 'leadtypes',
                             permissions : ['create', 'edit', 'delete', 'list']
                         },{
-                            name: 'Division',
+                            name: 'divisions',
+                            permissions : ['create', 'edit', 'delete', 'list']
+                        },{
+                            name: 'leads',
                             permissions : ['create', 'edit', 'delete', 'list']
                         }
                     ]

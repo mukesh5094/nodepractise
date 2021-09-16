@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const User = require('./../controllers/userController');
+const permission = require('./../middleware/permissions');
 
-router.get('/list', (req, res) => {
+router.get('/list', permission, (req, res) => {
     User.list(req, res);
 });
 
-router.post('/create', (req, res) => {
+router.post('/create', permission, (req, res) => {
     User.create(req, res)
 });
 

@@ -61,7 +61,8 @@ const login = async (req, res) => {
     //create Token
     const email = user.email;
     const role = user.role.id;
-    const token = await jwt.sign( { user_id: user._id, email,  role}, config.JWT_TOKEN_KEY, {expiresIn: "2h",});
+    const roleorder = user.role.order;
+    const token = await jwt.sign( { user_id: user._id, email,  role, roleorder}, config.JWT_TOKEN_KEY, {expiresIn: "2h",});
     
     user.token = token;
     user.save();

@@ -1,9 +1,9 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const config = require('./../config/env');
-const { find, findByIdAndUpdate } = require('./../models/userModel');
 
-const User = require('./../models/userModel')
+const User = require('./../models/userModel');
+const Role = require('./../models/roleModel');
 
 function list(req, res){
     try{
@@ -20,6 +20,19 @@ const  create = async (req, res) => {
     try {
         const oldUser = await User.findOne({$or:[{email : req.body.email}, {phone : req.body.phone}]});
         if(!oldUser){
+            
+            let role = await Role.findById(req.body.role_id);
+
+            let parentUser = await User.findById(req.body.parent).select(["name", "role"]).populate('role', ['name', 'order']);
+
+            if(!role){
+                return res.status(500).json({ status : 0 , 'message' : "Role not found"});
+            }
+
+            if(!parentUser){
+                return res.status(500).json({ status : 0 , 'message' : "Parent user not found"});
+            }
+          
             //create hash password
             let password = await bcrypt.hash(req.body.password, 10);
 
@@ -28,11 +41,11 @@ const  create = async (req, res) => {
                  'email' : req.body.email,
                  'phone' : req.body.phone,
                  'password' : password,
-                 'role' : req.body.role_id,
-                 'parent' : req.body.parent
+                 'role' : role.id,
+                 'parent' : parentUser.id
              }, async (err, data) => {
                 if(err) return res.status(200).json({status : 0, err : err});
-                    buildAncestors(data.id, req.body.parent)
+                    buildAncestors(data.id, parentUser.id)
                     return res.status(201).json({ status : 1, message : "user Created Successfully" });
              });
              
@@ -57,7 +70,7 @@ const update = async (req, res) => {
         const user = await User.
                             findByIdAndUpdate(req.body.user_id, 
                                 { $set : {
-                                        // name : req.body.name,
+                                        name : req.body.name,
                                         email : req.body.email,
                                         role : req.body.role_id,
                                         parent : req.body.parent

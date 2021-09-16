@@ -15,7 +15,6 @@ exports.create = function(req, res) {
             name : req.body.name,
             description : req.body.description,
             status : 1,
-            order : 1,
             resource : [
                 {
                     name: 'Role',
@@ -50,9 +49,10 @@ exports.create = function(req, res) {
 exports.update = async function(req, res){
     try{
         let err = await Role.findByIdAndUpdate(req.body.id, { $set : {name : req.body.name, description : req.body.description, resource : req.body.resource, order : req.body.order, status : req.body.status}})
+
         if(err){
             return res.status(200).json({message : "Updated Successfully !"});  
-        }
+        } 
     } catch(e) {
         return res.status(500).send(e)
     }

@@ -46,7 +46,7 @@ exports.create = async function(req, res) {
             const authority = [...user.role_assigned_autority];
             authority.unshift({ role_id : role.id });
             user = await User.findByIdAndUpdate(req.user.user_id, { $set : { role_assigned_autority : authority}}).exec();
-            
+            console.log('df')
             if(user){
                 return res.status(200).json({role : role});
             }

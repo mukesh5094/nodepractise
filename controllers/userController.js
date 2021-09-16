@@ -21,16 +21,16 @@ const  create = async (req, res) => {
         const oldUser = await User.findOne({$or:[{email : req.body.email}, {phone : req.body.phone}]});
         if(!oldUser){
             
-            let role = await Role.findById(req.body.role_id);
-
-            let parentUser = await User.findById(req.body.parent).select(["name", "role"]).populate('role', ['name', 'order']);
-
-            if(!role){
-                return res.status(500).json({ status : 0 , 'message' : "Role not found"});
+            let roleAuthority = await User.find({ "_id" : req.user.user_id, "role_assigned_autority.role_id" : req.body.role_id}).exec();
+            
+            if(!roleAuthority){
+                return res.status(201).json({status : 0, message : "You have no authority to assign Role"});
             }
+            
+            let parent = await User.find({"_id" : req.user.parent, 'ancestors._id' : req.user.user_id}).exec();
 
-            if(!parentUser){
-                return res.status(500).json({ status : 0 , 'message' : "Parent user not found"});
+            if(!parent){
+                return res.status(201).json({status : 0, message : "Something Wrong with Parent user"});
             }
           
             //create hash password
@@ -41,11 +41,11 @@ const  create = async (req, res) => {
                  'email' : req.body.email,
                  'phone' : req.body.phone,
                  'password' : password,
-                 'role' : role.id,
-                 'parent' : parentUser.id
+                 'role' : req.body.role_id,
+                 'parent' : parent.id
              }, async (err, data) => {
                 if(err) return res.status(200).json({status : 0, err : err});
-                    buildAncestors(data.id, parentUser.id)
+                    buildAncestors(data.id, parent.id)
                     return res.status(201).json({ status : 1, message : "user Created Successfully" });
              });
              

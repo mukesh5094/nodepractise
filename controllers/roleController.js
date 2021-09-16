@@ -1,4 +1,5 @@
 const Role = require('./../models/roleModel')
+const User = require('./../models/userModel')
 
 exports.list =function(req, res){
     Role.find({}, function(err, roles){
@@ -9,8 +10,10 @@ exports.list =function(req, res){
     });
 }
 
-exports.create = function(req, res) {
+exports.create = async function(req, res) {
     try{
+
+    
         Role.create({
             name : req.body.name,
             description : req.body.description,
@@ -34,12 +37,19 @@ exports.create = function(req, res) {
                     permissions : []
                 }
             ] 
-        }, (err, role) => {
+        }, async (err, role) => {
             if(err){
                 return res.status(401).json({ error: err });
             }
             
-            return res.status(200).json({role : role});
+            let user = await User.findOne({ "_id":    req.user.user_id },{ "role_assigned_autority": 1  }).select({ _id : false }).exec();
+            const authority = [...user.role_assigned_autority];
+            authority.unshift({ role_id : role.id });
+            user = await User.findByIdAndUpdate(req.user.user_id, { $set : { role_assigned_autority : authority}}).exec();
+            
+            if(user){
+                return res.status(200).json({role : role});
+            }
         })
     } catch (e){
         return res.status(500).send(e)

@@ -19,6 +19,9 @@ const userSchema = new Schema({
     }],
     token: { type: String },
     status : { type : Number, default : 1},
+    role_assigned_autority : [{
+        role_id : { type:mongoose.Schema.Types.ObjectId, ref : 'Role'},
+    }],
     created_at: { type: Date, default: Date.now},
     updated_at: { type:Date, default: Date.now},
     delated: { type:Date, default: null}

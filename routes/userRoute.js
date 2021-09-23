@@ -15,6 +15,10 @@ router.post('/edit', (req, res) => {
     User.update(req, res)
 });
 
+router.post('/role-assign', (req, res) => {
+    User.roleAssignedToUser(req, res)
+});
+
 router.post('/remove', (req, res) => {
     User.remove(req, res)
 });

@@ -21,17 +21,19 @@ const  create = async (req, res) => {
         const oldUser = await User.findOne({$or:[{email : req.body.email}, {phone : req.body.phone}]});
         if(!oldUser){
             
-            let roleAuthority = await User.find({ "_id" : req.user.user_id, "role_assigned_autority.role_id" : req.body.role_id}).exec();
+            let roleAuthority = await User.findOne({ "_id" : req.user.user_id, "role_assigned_autority.role_id" : req.body.role_id}).exec();
             
             if(!roleAuthority){
-                return res.status(201).json({status : 0, message : "You have no authority to assign Role"});
+                return res.status(201).json({status : 0, message : "You have no authority to create user with this role"});
             }
             
-            let parent = await User.find({"_id" : req.user.parent, 'ancestors._id' : req.user.user_id}).exec();
-
+            let parent = await User.findOne({"_id" : req.body.parent, 'ancestors._id' : req.user.user_id}).exec();
+           
             if(!parent){
-                return res.status(201).json({status : 0, message : "Something Wrong with Parent user"});
+                
+                return res.status(201).json({status : 0, message : "Parent user is not in your team"});
             }
+
           
             //create hash password
             let password = await bcrypt.hash(req.body.password, 10);
@@ -45,8 +47,14 @@ const  create = async (req, res) => {
                  'parent' : parent.id
              }, async (err, data) => {
                 if(err) return res.status(200).json({status : 0, err : err});
-                    buildAncestors(data.id, parent.id)
-                    return res.status(201).json({ status : 1, message : "user Created Successfully" });
+                    const result = await buildAncestors(data.id, parent.id);
+                    if(result){
+                        // console.log(result);
+                        return res.status(201).json({ status : 1, message : "user Created Successfully" });
+                    } else{
+                        return res.status(201).json({ status : 1, message : "user Created Successfully But ancesstor not" });
+                    }
+                    
              });
              
         } else{
@@ -67,16 +75,16 @@ const  create = async (req, res) => {
 const update = async (req, res) => {
    try {
 
-        const user = await User.
-                            findByIdAndUpdate(req.body.user_id, 
-                                { $set : {
-                                        name : req.body.name,
-                                        email : req.body.email,
-                                        role : req.body.role_id,
-                                        parent : req.body.parent
-                                    }
-                                });
-        buildHierarchyAncestors(user._id, req.body.parent);
+        // const user = await User.
+        //                     findByIdAndUpdate(req.body.user_id, 
+        //                         { $set : {
+        //                                 name : req.body.name,
+        //                                 email : req.body.email,
+        //                                 role : req.body.role_id,
+        //                                 parent : req.body.parent
+        //                             }
+        //                         });
+        // buildHierarchyAncestors(user._id, req.body.parent);
 
     } catch (e){
         return res.status(500).send(e);
@@ -124,9 +132,14 @@ const buildAncestors = async (userid, parent_id) => {
             const ancest = [...parent_category.ancestors];
             ancest.unshift({ _id, name })
            const category = await User.findByIdAndUpdate(userid, { $set: { "ancestors": ancest } });
+           return true;
+         } else {
+            return false;
          }
+
       } catch (err) {
-          console.log(err.message)
+        return true ;
+          
        }
  }
 
@@ -143,10 +156,32 @@ const buildAncestors = async (userid, parent_id) => {
     }
  }
 
+ const roleAssignedToUser = async (req, res) => {
+   
+    try {
+      
+        let user = await User.findOne({ "_id" : req.body.user_id}, {"role_assigned_autority" : 1}).select({_id : false}).exec();
+
+        const roleArray = [...user.role_assigned_autority];
+
+        roleArray.unshift({ role_id : req.body.role_id });
+        
+        user = await User.findByIdAndUpdate(req.body.user_id, { $set : { role_assigned_autority : roleArray}}).exec();
+
+
+        if(user){
+            return res.status(200).json({status : 1, message : "Role added successfully"});
+        }
+     } catch (e){
+         console.log(e);
+         return res.status(500).send(e);
+     }
+ };
 module.exports = {
     list,
     create,
     update,
     getDescendants,
-    remove
+    remove,
+    roleAssignedToUser
 };

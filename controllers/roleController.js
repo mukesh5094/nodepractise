@@ -20,20 +20,20 @@ exports.create = async function(req, res) {
             status : 1,
             resource : [
                 {
-                    name: 'Role',
+                    name: 'roles',
                     permissions : []
                 },
                 {
-                    name: 'User',
+                    name: 'users',
                     permissions : []
                 },{
-                    name: 'Lead Source',
+                    name: 'leadsources',
                     permissions : []
                 },{
-                    name: 'Lead Type',
+                    name: 'leadtypes',
                     permissions : ['']
                 },{
-                    name: 'Division',
+                    name: 'divisions',
                     permissions : []
                 }
             ] 
@@ -46,7 +46,7 @@ exports.create = async function(req, res) {
             const authority = [...user.role_assigned_autority];
             authority.unshift({ role_id : role.id });
             user = await User.findByIdAndUpdate(req.user.user_id, { $set : { role_assigned_autority : authority}}).exec();
-            console.log('df')
+            
             if(user){
                 return res.status(200).json({role : role});
             }

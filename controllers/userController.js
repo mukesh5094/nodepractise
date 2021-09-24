@@ -27,14 +27,18 @@ const  create = async (req, res) => {
                 return res.status(201).json({status : 0, message : "You have no authority to create user with this role"});
             }
             
-            let parent = await User.findOne({"_id" : req.body.parent, 'ancestors._id' : req.user.user_id}).exec();
-           
+           let parent =  {};
+            if(req.body.parent !== req.user.user_id){
+                parent = await User.findOne({"_id" : req.body.parent, 'ancestors._id' : req.user.user_id}).exec();
+            } else {
+                parent = await User.findOne({"_id" : req.body.parent}).exec();
+            }
+
             if(!parent){
-                
                 return res.status(201).json({status : 0, message : "Parent user is not in your team"});
             }
 
-          
+         
             //create hash password
             let password = await bcrypt.hash(req.body.password, 10);
 
@@ -49,7 +53,6 @@ const  create = async (req, res) => {
                 if(err) return res.status(200).json({status : 0, err : err});
                     const result = await buildAncestors(data.id, parent.id);
                     if(result){
-                        // console.log(result);
                         return res.status(201).json({ status : 1, message : "user Created Successfully" });
                     } else{
                         return res.status(201).json({ status : 1, message : "user Created Successfully But ancesstor not" });
@@ -74,17 +77,21 @@ const  create = async (req, res) => {
 
 const update = async (req, res) => {
    try {
-
-        // const user = await User.
-        //                     findByIdAndUpdate(req.body.user_id, 
-        //                         { $set : {
-        //                                 name : req.body.name,
-        //                                 email : req.body.email,
-        //                                 role : req.body.role_id,
-        //                                 parent : req.body.parent
-        //                             }
-        //                         });
+        const user = await User.
+                            findByIdAndUpdate(req.body.user_id, 
+                                { $set : {
+                                        name : req.body.name,
+                                        email : req.body.email,
+                                        // role : req.body.role_id,
+                                        // parent : req.body.parent
+                                    }
+                                });
         // buildHierarchyAncestors(user._id, req.body.parent);
+        if(user){
+            return res.status(200).send({ status : 1, message : "Updated Successfully"});
+        } else {
+            return res.status(400).send({ status : 0, message : "Something Wrong"});
+        }
 
     } catch (e){
         return res.status(500).send(e);
@@ -100,6 +107,64 @@ const getDescendants = async (req, res ) => {
         return res.status(201).send({ "status": "success", "result": result });
     } catch (e){
         return res.status(500).send(e);
+    }
+}
+
+const changeParentAndTeam = async (req, res) => {
+    try {
+        const user = await User.findById(req.body.user_id).exec();
+
+        /****To change parent in new parent assign */
+
+        if(user && (req.body.parent) && (req.body.parent !== user.parent)){
+            
+           let parent =  {};
+            if(req.body.parent !== req.user.user_id){
+                parent = await User.findOne({"_id" : req.body.parent, 'ancestors._id' : req.user.user_id}).exec();
+            } else {
+                parent = await User.findOne({"_id" : req.body.parent}).exec();
+            }
+
+            if(parent){
+                user.parent = parent.id;
+                user.save();
+
+                buildHierarchyAncestors(user.id, req.body.parent);
+                
+            } else{
+                return res.status(201).json({status : 0, message : "Parent user is not in your team"});
+            }
+        } else {
+            return res.status(201).send({ "status": 0, "message": "Sorry! Cannot perform this operation" });
+        }
+    } catch (e) {
+        return res.status(500).send(e)
+    }
+}
+
+const changeRole = async (req, res) => {
+    try {
+        const user = await User.findById(req.body.user_id).exec();
+
+        /****To change parent in new parent assign */
+
+        if(user && (req.body.role_id)){
+            let roleAuthority = await User.findOne({ "_id" : req.user.user_id, "role_assigned_autority.role_id" : req.body.role_id}).exec();
+            
+            if(!roleAuthority){
+
+                user.role = (req.body.role_id ? req.body.role_id : user.role);
+                user.save();
+
+                return res.status(201).json({status : 0, message : "Role updated Successfully"});
+            } else{
+                return res.status(201).json({status : 0, message : "You have no authority to create user with this role"});
+            }
+        } else {
+            return res.status(201).send({ "status": 0, "message": "Sorry! Cannot perform this operation" });
+        }
+    } catch (e) {
+        return res.status(500).send(e)
     }
 }
 
@@ -144,10 +209,10 @@ const buildAncestors = async (userid, parent_id) => {
  }
 
  const buildHierarchyAncestors = async (userid, parent_id) => {
-        if(userid && parent_id){
-            buildAncestors(userid, parent_id);
-            const result = await User.find({ 'parent': userid }).exec();
-        
+    if(userid && parent_id){
+        buildAncestors(userid, parent_id);
+        const result = await User.find({ 'parent': userid }).exec();
+    
 
         if(result){
             result.forEach((doc) => {
@@ -177,11 +242,14 @@ const buildAncestors = async (userid, parent_id) => {
          return res.status(500).send(e);
      }
  };
-module.exports = {
+
+ module.exports = {
     list,
     create,
     update,
     getDescendants,
     remove,
-    roleAssignedToUser
+    roleAssignedToUser,
+    changeParentAndTeam,
+    changeRole
 };

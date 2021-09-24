@@ -23,9 +23,16 @@ router.post('/remove', (req, res) => {
     User.remove(req, res)
 });
 
+router.post('/remove', (req, res) => {
+    User.remove(req, res)
+});
 
-router.post('/descendants', (req, res) => {
-    User.getDescendants(req, res)
+router.post('/changeParentAndTeam', (req, res) => {
+    User.changeParentAndTeam(req, res)
+});
+
+router.post('/changeRole', (req, res) => {
+    User.changeRole(req, res)
 });
 
 router.post('/login', (req, res) => {
